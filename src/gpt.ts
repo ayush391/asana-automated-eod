@@ -1,4 +1,6 @@
+import dotenv from "dotenv";
 import OpenAI, { ClientOptions } from "openai";
+dotenv.config();
 
 const configuration: ClientOptions = {
   apiKey: process.env.OPENAI_API_KEY,
@@ -37,7 +39,7 @@ export const generateEODReport = async (tasks: Task[]): Promise<string> => {
 
   try {
     const response = await openai.chat.completions.create({
-      model: "text-davinci-003",
+      model: "gpt-3.5-turbo-instruct",
       messages: [{ role: "user", content: prompt }],
       max_tokens: 500,
       temperature: 0.7,
