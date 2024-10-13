@@ -13,11 +13,14 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "asana": "^3.0.11",
     "axios": "^1.7.7",
+    "dayjs": "^1.11.13",
     "dotenv": "^16.4.5",
     "openai": "^4.67.0"
   },
   "devDependencies": {
+    "@types/asana": "^0.18.16",
     "@types/dotenv": "^8.2.0",
     "@types/node": "^22.7.4",
     "typescript": "^5.6.2"
