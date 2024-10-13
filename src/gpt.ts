@@ -1,10 +1,9 @@
-import dotenv from "dotenv";
 import OpenAI, { ClientOptions } from "openai";
 import { Task } from "./asana";
-dotenv.config();
+import { OPENAI_API_KEY } from "./config";
 
 const configuration: ClientOptions = {
-  apiKey: process.env.OPENAI_API_KEY,
+  apiKey: OPENAI_API_KEY,
 };
 const openai = new OpenAI(configuration);
 
