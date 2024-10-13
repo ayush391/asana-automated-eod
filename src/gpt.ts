@@ -1,5 +1,6 @@
 import dotenv from "dotenv";
 import OpenAI, { ClientOptions } from "openai";
+import { Task } from "./asana";
 dotenv.config();
 
 const configuration: ClientOptions = {
@@ -7,18 +8,17 @@ const configuration: ClientOptions = {
 };
 const openai = new OpenAI(configuration);
 
-interface Task {
-  name: string;
-  completed: boolean;
-}
-
 export const generateEODReport = async (tasks: Task[]): Promise<string> => {
   const completedTasks = tasks
     .filter((task) => task.completed)
-    .map((task) => task.name);
+    .map((task) => JSON.stringify(task))
+    .slice(0, 1);
+  // .map((task) => task.name);
   const ongoingTasks = tasks
     .filter((task) => !task.completed)
-    .map((task) => task.name);
+    .map((task) => JSON.stringify(task))
+    .slice(0, 1);
+  // .map((task) => task.name);
 
   const prompt = `
         Generate an End-of-Day (EOD) report for the following data:
@@ -36,10 +36,11 @@ export const generateEODReport = async (tasks: Task[]): Promise<string> => {
         5. Are there any blockers?
         6. Anything new/interesting you learnt today?
     `;
+  console.log(prompt);
 
   try {
     const response = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo-instruct",
+      model: "gpt-3.5-turbo",
       messages: [{ role: "user", content: prompt }],
       max_tokens: 500,
       temperature: 0.7,

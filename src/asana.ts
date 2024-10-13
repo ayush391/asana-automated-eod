@@ -1,38 +1,66 @@
-import axios from "axios";
+import dayjs from "dayjs";
 
-interface Task {
+const Asana = require("asana");
+
+export interface Task {
   name: string;
   completed: boolean;
   modified_at: string;
   due_on?: string;
+  notes?: string;
 }
 
 export const getAsanaTasksForToday = async (
   userId: string,
   workspaceId: string
 ): Promise<Task[]> => {
-  const url = `https://app.asana.com/api/1.0/tasks`;
-  try {
-    const response = await axios.get(url, {
-      headers: {
-        Authorization: `Bearer ${process.env.ASANA_TOKEN}`,
-      },
-      params: {
-        assignee: userId,
-        workspace: workspaceId,
-        modified_since: "today", // Fetch today's tasks
-        opt_fields: "name,completed,modified_at,due_on",
-      },
-    });
+  // Initialize Asana client
+  let client = Asana.ApiClient.instance;
+  let token = client.authentications["token"];
+  token.accessToken = process.env.ASANA_TOKEN; // Set your access token from environment variable
 
-    return response.data.data.map((task: any) => ({
-      name: task.name,
-      completed: task.completed,
-      modified_at: task.modified_at,
-      due_on: task.due_on,
-    }));
+  // Initialize the Tasks API instance
+  let tasksApiInstance = new Asana.TasksApi();
+  let opts = {
+    assignee: userId, // Assign the user
+    workspace: workspaceId, // Specify the workspace
+    modified_since: dayjs().subtract(1, "day").toISOString(), // Today's tasks
+    opt_fields: "name,completed,modified_at,due_on,notes", // Fields to include in the response
+    limit: 100, // Limit the number of tasks per request (pagination)
+  };
+
+  try {
+    let tasks: Task[] = [];
+    let pageIndex = 1;
+    let response = await tasksApiInstance.getTasks(opts);
+
+    while (true) {
+      // Do something with the page results
+      console.log(`Page ${pageIndex}:`);
+      tasks = tasks.concat(
+        response.data.map((task: any) => ({
+          name: task.name,
+          completed: task.completed,
+          modified_at: task.modified_at,
+          due_on: task.due_on,
+          notes: task.notes, // Get task description
+        }))
+      );
+      pageIndex += 1;
+
+      // Check if there is a next page
+      response = await response.nextPage();
+      if (!response.data) {
+        break;
+      }
+    }
+
+    return tasks;
   } catch (error) {
-    console.error("Error fetching tasks from Asana:", error);
+    console.error(
+      "Error fetching tasks from Asana:",
+      (error as any).response.body
+    );
     return [];
   }
 };
