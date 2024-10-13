@@ -1,6 +1,6 @@
 import OpenAI, { ClientOptions } from "openai";
+import { OPENAI_API_KEY } from "../config";
 import { Task } from "./asana";
-import { OPENAI_API_KEY } from "./config";
 
 const configuration: ClientOptions = {
   apiKey: OPENAI_API_KEY,

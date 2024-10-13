@@ -1,5 +1,5 @@
+import { GEMINI_API_KEY } from "../config";
 import { Task } from "./asana";
-import { GEMINI_API_KEY } from "./config";
 
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 
@@ -15,7 +15,7 @@ export const generateEODReport = async (tasks: Task[]): Promise<string> => {
     .filter((task) => !task.completed)
     .map((task) => JSON.stringify(task));
   const prompt = `
-        Generate an End-of-Day (EOD) report for the following data:
+        Generate an End-of-Day (EOD) report that has simple text, no formatting please, for the following data:
         - Completed tasks: ${
           completedTasks.length > 0 ? completedTasks.join(", ") : "None"
         }

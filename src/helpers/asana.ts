@@ -13,20 +13,19 @@ export interface Task {
   lastComment?: string; // New field to store the last comment by the user
 }
 
+const client = Asana.ApiClient.instance;
+const token = client.authentications["token"];
+token.accessToken = process.env.ASANA_TOKEN; // Set your access token from environment variable
+
+// Initialize the Tasks API instance
+const tasksApiInstance = new Asana.TasksApi();
+const storiesApiInstance = new Asana.StoriesApi();
+
 export const getAsanaTasksForToday = async (
   userId: string,
   workspaceId: string,
   { date }: { date: dayjs.Dayjs } = { date: dayjs() }
 ): Promise<Task[]> => {
-  // Initialize Asana client
-  const client = Asana.ApiClient.instance;
-  const token = client.authentications["token"];
-  token.accessToken = process.env.ASANA_TOKEN; // Set your access token from environment variable
-
-  // Initialize the Tasks API instance
-  const tasksApiInstance = new Asana.TasksApi();
-  const storiesApiInstance = new Asana.StoriesApi(); // Initialize the Stories API
-
   const opts = {
     assignee: userId, // Assign the user
     workspace: workspaceId, // Specify the workspace
@@ -99,5 +98,54 @@ export const getAsanaTasksForToday = async (
       (error as any).response.body
     );
     return [];
+  }
+};
+
+export const addCommentToTask = async (taskId: string, comment: string) => {
+  try {
+    const response = await storiesApiInstance.createStoryForTask(
+      {
+        data: { text: comment },
+      },
+      taskId
+    );
+    console.log(`Comment added to task: ${response.data.text}`);
+  } catch (error) {
+    console.error("Error adding comment:", error);
+  }
+};
+
+export const findEndOfDayTaskId = async (
+  workspaceId: string,
+  userId: string,
+  { date }: { date: dayjs.Dayjs } = { date: dayjs() }
+): Promise<string | null> => {
+  try {
+    // Fetch all tasks in the workspace (you can adjust for pagination if necessary)
+    const tasksInWorkspace = await tasksApiInstance.getTasks({
+      assignee: userId, // Assign the user
+      workspace: workspaceId, // Specify the workspace
+      opt_fields: "name,gid,assignee",
+      modified_since: dayjs(date).toISOString(), // Today's tasks
+      // limit: 100, // Limit the number of tasks per request (pagination)
+    });
+
+    // Look for the task named "End-of-the-Day Update"
+    const endOfDayTask = tasksInWorkspace.data.find(
+      (task: any) => task.name === "End-of-the-Day Update"
+    );
+
+    if (endOfDayTask) {
+      return endOfDayTask.gid; // Return the task ID
+    } else {
+      console.error('Task "End-of-the-Day Update" not found.');
+      return null; // Task not found
+    }
+  } catch (error) {
+    console.error(
+      "Error finding or assigning the End-of-the-Day Update task:",
+      error
+    );
+    return null; // Error occurred
   }
 };
