@@ -4,6 +4,7 @@
 dist
 tmp
 /out-tsc
+/eod-report/
 
 # dependencies
 node_modules
