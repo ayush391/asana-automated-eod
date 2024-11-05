@@ -10,6 +10,8 @@ export const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 export const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
 export const EOD_REPORT_FOLDER = "eod-report";
-export const EOD_DATE = dayjs("17 October 2024");
+export const EOD_DATE = process.argv[2]
+  ? dayjs(process.argv[2]).startOf("day")
+  : dayjs().startOf("day");
 
 export const POST_TO_ASANA = false;
