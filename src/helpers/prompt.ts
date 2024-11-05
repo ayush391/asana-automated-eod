@@ -50,7 +50,7 @@ export const generatePrompt = (
   
   [Share any new insights or learnings from the day, indented by 2 spaces]
   
-  Important: Use simple text only, but add indentation (2 spaces) for the content under each section. When mentioning tasks, group them by their projects and indent the tasks. Use the comments provided for each task to give context about what was done or what needs to be done next. Do not include any specific names or Asana profiles in the report.
+  Important: Use simple text only, but add indentation (2 spaces) for the content under each section. Don't use any kind of formatting. When mentioning tasks, group them by their projects and indent the tasks. Use the comments provided for each task to give context about what was done or what needs to be done next. Do not include any specific names or Asana profiles in the report.
   `;
 
   return prompt;
